@@ -38,6 +38,68 @@ ui <- dashboardPage(
   dashboardSidebar(),
   dashboardBody(
     fluidRow(
+      column(width = 8,
+        box(
+          title = "Background",
+          width = NULL,
+          solidHeader = TRUE,
+          status = "primary",
+          collapsible = TRUE,
+          collapsed = TRUE,
+          p(
+            "This application is a simple front end to the ", code("decctools"),
+            " R package.  This package provides a variety of wrapper functions
+            for accessing various data sources relating to  UK energy supply.
+            A function is provided to access BM reports data.  The  BM report
+            data is sourced from ",
+            tags$a(href = "http://www.ref.org.uk/fuel/",
+                   "Renewable Energy Foundation"),
+            " which is somewhat more convenient than the API provided by the
+            BM report.  The data source is free to access.  The user should
+            refer to the", code('dectools'),
+            tags$a(
+              href = paste0("https://cran.r-project.org/",
+                            "web/packages/decctools/decctools.pdf"),
+              "documentation"),
+            "for full details.  The objective of this R Shiny application is to
+            provide an interface for non-R users to make use of the
+            aforementioned BM report wrapper function."
+          )
+        ),
+        box(
+          title = "Instructions",
+          width = NULL,
+          solidHeader = TRUE,
+          status = "primary",
+          collapsible = TRUE,
+          collapsed = FALSE,
+          p(
+            "The user interacts with the app using the 'Controls'.  The user
+            can select a date range for the data.  Note that the user ",
+            strong("must"), " click the 'Reload Data' button after modifying
+            this range.  Upon doing this, the data will be refreshed.
+            Subsequently, the user can select a time increment of the data
+            records and filter so as to only include specified energy sources.
+            The plot takes some time to update when data is loading; it will
+            be 'greyed out' during this time.  After the data has loaded and
+            the 'controls' are set, the user may download the filtered data
+            in CSV format (to Excel)."
+          ),
+          p(em(
+            "Please note that this application is provided simply to
+            demonstrate proof of concept.  Currently, a testing framework is
+            not implemented and the output should be treated with caution."
+          ))
+        ),
+        box(
+          title = "Plot",
+          width = NULL, solidHeader = TRUE,
+          status = "primary",
+          plotOutput(
+            outputId = "plot"
+          )
+        )
+      ),
       column(width = 4,
         box(
           title = "Controls",
@@ -48,7 +110,9 @@ ui <- dashboardPage(
             inputId = "date_range",
             label = "Select date range:",
             start = Sys.Date() - 7,
-            end = Sys.Date()
+            end = Sys.Date(),
+            min = "2009-01-01",
+            max = Sys.Date()
           ),
           actionButton(
             inputId = "get_data",
@@ -69,53 +133,6 @@ ui <- dashboardPage(
           downloadButton(
             outputId = "download",
             label = "Download Filtered Data"
-          )
-        )
-      ),
-      column(width = 8,
-        box(
-          title = "Instructions",
-          width = NULL,
-          solidHeader = TRUE,
-          status = "primary",
-          collapsible = TRUE,
-          collapsed = TRUE,
-          p(
-            "This app is a simple front end to the ", code("decctools"),
-            "package.  This package provides an R wrapper function to the BM
-            reports data.  The function actually sources a more
-            convinient form of data made available by the ",
-            tags$a(href = "http://www.ref.org.uk/fuel/",
-                   "Renewable Energy Foundation"),". ",
-            "The data source is free to access.  The user should refer to the",
-            tags$a(
-              href = paste0("https://cran.r-project.org/",
-                            "web/packages/decctools/decctools.pdf"),
-              "documentation"),
-            "for full details."
-          ),
-          p(
-            "In this app, the user can select a date range for the data.  Note
-            that the user ", strong("must"), " click the 'Reload  Data' button
-            after
-            modifying  this range.  Upon doing this, the data will be refreshed.
-            Subsequently, the user can select a time increment of the data
-            records and filter the required energy sources.  The  user may then
-            download the filtered data in CSV format (to Excel)."
-          ),
-          p(
-            "Please note that this app is simply to demonstrate proof of
-            concept.  Currently, a testing framework is not implemented and the
-            output should be treated with caution."
-          )
-        ),
-        box(
-          title = "Plot",
-          width = NULL,
-          solidHeader = TRUE,
-          status = "primary",
-          plotOutput(
-            outputId = "plot"
           )
         )
       )
@@ -179,9 +196,9 @@ server <- function(input, output) {
       aes(x = Time, y = Output, color = Type)) +
       geom_line() +
       scale_x_datetime(
-      breaks = date_breaks("12 hours"), labels = date_format("%d:%m %H:%M")) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-      ggtitle("Electricity output by fuel type") + ylab("Output (MW)")
+      breaks = date_breaks("12 hours"), labels = date_format("%d-%m %H:%M")) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      ggtitle("Electricity Output by Fuel Type") + ylab("Output (MW)")
   })
 }
 
